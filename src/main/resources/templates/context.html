@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Context')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main>
+  <p><a th:href="@{/contexts}">&larr; Contexts</a></p>
+  <h1>Context: <span th:text="${context.name}">name</span></h1>
+  <p class="muted" th:text="${context.description}"></p>
+  <p>Base URL: <code th:text="${baseUrl} + '/{scenario}'"></code></p>
+  <div class="card">
+    <p><a class="btn" th:href="@{/contexts/{id}/scenarios/new(id=${context.id})}">New scenario</a>
+       <a class="btn secondary" th:href="@{/logs(context=${context.name})}">View logs for this context</a></p>
+    <table>
+      <thead><tr><th>Scenario</th><th>Methods</th><th>Auth</th><th>Body</th><th>Response</th><th>Delay</th><th>URL</th><th></th></tr></thead>
+      <tbody>
+        <tr th:each="s : ${scenarios}">
+          <td><strong th:text="${s.name}">A</strong>
+              <span class="badge" th:unless="${s.enabled}">disabled</span>
+              <div class="muted" th:text="${s.description}"></div></td>
+          <td th:text="${s.allowedMethods}"></td>
+          <td th:text="${s.authType}"></td>
+          <td th:text="${s.bodyMode} + (${s.requireValidJson} ? ' (JSON)' : '')"></td>
+          <td><span th:text="${s.responseStatus}"></span>
+              <span class="muted" th:text="${#strings.isEmpty(s.responseBody)} ? '(empty body)' : '(with body)'"></span></td>
+          <td th:text="${s.delayMs} + ' ms'"></td>
+          <td><code th:text="${baseUrl} + '/' + ${s.name}"></code></td>
+          <td class="actions">
+            <a class="btn small secondary" th:href="@{/scenarios/{id}/edit(id=${s.id})}">Edit</a>
+            <a class="btn small secondary" th:href="@{/logs(context=${context.name},scenario=${s.name})}">Logs</a>
+            <form th:action="@{/scenarios/{id}/toggle(id=${s.id})}" method="post">
+              <button class="secondary small" type="submit" th:text="${s.enabled} ? 'Disable' : 'Enable'">Disable</button>
+            </form>
+            <form th:action="@{/scenarios/{id}/delete(id=${s.id})}" method="post" onsubmit="return confirm('Delete this scenario?');">
+              <button class="danger small" type="submit">Delete</button>
+            </form>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(scenarios)}"><td colspan="8" class="muted">No scenarios yet.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

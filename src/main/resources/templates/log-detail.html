@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Request detail')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main>
+  <p><a th:href="@{/logs}">&larr; Request logs</a></p>
+  <h1>Request #<span th:text="${log.id}"></span>
+      <span class="badge" th:classappend="${log.outcome}" th:text="${log.outcome}"></span></h1>
+  <div class="card">
+    <table>
+      <tr><th>Received</th><td th:text="${@fmt.dt(log.receivedAt, tz)}"></td><td class="muted" th:text="${log.receivedAt} + ' (UTC, as stored)'"></td></tr>
+      <tr><th>Responded</th><td th:text="${@fmt.dt(log.respondedAt, tz)}"></td><td class="muted" th:text="${log.respondedAt} + ' (UTC, as stored)'"></td></tr>
+      <tr><th>Duration</th><td th:text="${log.durationMs} + ' ms'" colspan="2"></td></tr>
+      <tr><th>Target</th><td colspan="2"><span th:text="${log.pathUsername} + ' / ' + ${log.contextName} + ' / ' + ${log.scenarioName}"></span></td></tr>
+      <tr><th>Source IP</th><td th:text="${log.remoteIp}" colspan="2"></td></tr>
+    </table>
+  </div>
+  <div class="row">
+    <div class="card">
+      <h2>Request</h2>
+      <p><strong th:text="${log.method}"></strong> <code th:text="${log.url} + (${log.queryString} != null ? '?' + ${log.queryString} : '')"></code></p>
+      <h3>Headers</h3><pre th:text="${log.requestHeaders}"></pre>
+      <h3>Body <span class="muted" th:if="${log.requestBodyTruncated}">(truncated at 10 MB)</span></h3>
+      <pre th:text="${log.requestBody}"></pre>
+    </div>
+    <div class="card">
+      <h2>Response</h2>
+      <p><strong th:text="${log.responseStatus}"></strong></p>
+      <h3>Headers</h3><pre th:text="${log.responseHeaders}"></pre>
+      <h3>Body</h3><pre th:text="${log.responseBody}"></pre>
+    </div>
+  </div>
+</main>
+</body>
+</html>

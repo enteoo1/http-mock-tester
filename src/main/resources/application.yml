@@ -1,0 +1,31 @@
+server:
+  port: ${APP_PORT:8443}
+  ssl:
+    enabled: ${APP_SSL_ENABLED:true}
+    key-store: file:${APP_SSL_KEYSTORE:/data/certs/keystore.p12}
+    key-store-password: ${APP_SSL_KEYSTORE_PASSWORD:changeit}
+    key-store-type: PKCS12
+spring:
+  application:
+    name: mock-tester
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: jdbc:sqlite:${APP_DB_PATH:./data/mocktester.db}?journal_mode=WAL&busy_timeout=5000&foreign_keys=true
+    driver-class-name: org.sqlite.JDBC
+    hikari:
+      maximum-pool-size: 1
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+  thymeleaf:
+    cache: false
+app:
+  http:
+    # extra plain-HTTP connector, only used when SSL is enabled
+    enabled: ${APP_HTTP_ENABLED:false}
+    port: ${APP_HTTP_PORT:8080}
+  max-logged-body-bytes: 10485760
+  default-retention-days: 60

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${title} + ' - Mock Tester'">Mock Tester</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav class="nav" th:fragment="nav">
+  <strong>Mock Tester</strong>
+  <a th:href="@{/contexts}">Contexts</a>
+  <a th:href="@{/logs}">Request logs</a>
+  <a th:if="${isAdmin}" th:href="@{/admin}">Admin</a>
+  <span class="spacer"></span>
+  <a th:href="@{/account}"><span th:text="${me}">user</span> &middot; <span class="muted" th:text="${tz}">UTC</span></a>
+  <form th:action="@{/logout}" method="post"><button class="secondary small" type="submit">Logout</button></form>
+</nav>
+</body>
+</html>

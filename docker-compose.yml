@@ -1,0 +1,18 @@
+services:
+  mock-tester:
+    build: .
+    ports:
+      - "8443:8443"   # HTTPS
+      - "8080:8080"   # plain HTTP (only active when APP_HTTP_ENABLED=true, or APP_SSL_ENABLED=false)
+    volumes:
+      - ./data:/data
+    environment:
+      APP_SSL_ENABLED: "true"            # false = plain HTTP only (on APP_PORT, default 8080)
+      APP_HTTP_ENABLED: "true"           # extra plain HTTP port next to HTTPS
+      APP_SSL_CN: "localhost"            # CN/SAN of the auto-generated self-signed certificate
+      # To use your own certificate, drop a PKCS12 file at ./data/certs/keystore.p12 and set the password:
+      APP_SSL_KEYSTORE_PASSWORD: "changeit"
+      # APP_SSL_KEYSTORE: /data/certs/keystore.p12
+      # APP_PORT: 8443
+      # APP_HTTP_PORT: 8080
+    restart: unless-stopped

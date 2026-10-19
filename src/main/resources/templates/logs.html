@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Request logs')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main>
+  <h1>Request logs <span class="muted" style="font-size:.9rem" th:text="'(times shown in ' + ${tz} + ')'"></span></h1>
+  <div class="card">
+    <form th:action="@{/logs}" method="get" class="row">
+      <div><label for="context">Context</label><input type="text" id="context" name="context" th:value="${context}"></div>
+      <div><label for="scenario">Scenario</label><input type="text" id="scenario" name="scenario" th:value="${scenario}"></div>
+      <div><label for="outcome">Outcome</label>
+        <select id="outcome" name="outcome">
+          <option value="">All</option>
+          <option th:each="o : ${outcomes}" th:value="${o}" th:text="${o}" th:selected="${o == outcome}"></option>
+        </select></div>
+      <div><label>&nbsp;</label><button type="submit">Filter</button>
+           <a class="btn secondary" th:href="@{/logs}">Reset</a></div>
+    </form>
+  </div>
+  <div class="card">
+    <table>
+      <thead><tr><th>Received</th><th>Method</th><th>Context / Scenario</th><th>Outcome</th><th>Status</th><th>Source IP</th><th>ms</th><th></th></tr></thead>
+      <tbody>
+        <tr th:each="l : ${rows}">
+          <td th:text="${@fmt.dt(l.receivedAt, tz)}"></td>
+          <td th:text="${l.method}"></td>
+          <td><span th:text="${l.contextName}"></span> / <span th:text="${l.scenarioName}"></span></td>
+          <td><span class="badge" th:classappend="${l.outcome}" th:text="${l.outcome}"></span></td>
+          <td th:text="${l.responseStatus}"></td>
+          <td th:text="${l.remoteIp}"></td>
+          <td th:text="${l.durationMs}"></td>
+          <td><a class="btn small secondary" th:href="@{/logs/{id}(id=${l.id})}">Details</a></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(rows)}"><td colspan="8" class="muted">No requests found.</td></tr>
+      </tbody>
+    </table>
+    <p>
+      <a class="btn secondary small" th:if="${page > 0}"
+         th:href="@{/logs(context=${context},scenario=${scenario},outcome=${outcome},page=${page - 1})}">&larr; Newer</a>
+      <a class="btn secondary small" th:if="${hasNext}"
+         th:href="@{/logs(context=${context},scenario=${scenario},outcome=${outcome},page=${page + 1})}">Older &rarr;</a>
+    </p>
+  </div>
+</main>
+</body>
+</html>

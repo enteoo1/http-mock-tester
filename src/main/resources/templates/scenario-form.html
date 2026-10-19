@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Scenario')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main>
+  <p><a th:href="@{/contexts/{id}(id=${context.id})}">&larr; Context <span th:text="${context.name}"></span></a></p>
+  <h1 th:text="${title}">Scenario</h1>
+  <p class="error" th:if="${error}" th:text="${error}"></p>
+  <form th:action="@{${action}}" th:object="${form}" method="post">
+    <div class="card">
+      <h2>Request (what the endpoint accepts)</h2>
+      <div class="row">
+        <div><label for="name">Scenario name (used in the URL)</label>
+             <input type="text" id="name" th:field="*{name}" required></div>
+        <div><label for="description">Description</label>
+             <input type="text" id="description" th:field="*{description}"></div>
+      </div>
+      <label>Accepted HTTP methods (ANY = all)</label>
+      <div>
+        <label class="inline" th:each="m : ${allMethods}">
+          <input type="checkbox" th:field="*{methods}" th:value="${m}"> <span th:text="${m}"></span>
+        </label>
+      </div>
+      <div class="row">
+        <div><label for="bodyMode">Request body</label>
+             <select id="bodyMode" th:field="*{bodyMode}">
+               <option th:each="o : ${bodyModes}" th:value="${o}" th:text="${o}"></option>
+             </select></div>
+        <div><label>&nbsp;</label>
+             <label class="inline"><input type="checkbox" th:field="*{requireValidJson}"> Body must be valid JSON (400 otherwise)</label></div>
+      </div>
+      <div class="row">
+        <div><label for="authType">Authentication required (header/values must be present, they are not verified)</label>
+             <select id="authType" th:field="*{authType}">
+               <option th:each="o : ${authTypes}" th:value="${o}" th:text="${o}"></option>
+             </select>
+             <p class="muted">BASIC: Authorization: Basic user:password &middot; BEARER / OAUTH2: Authorization: Bearer token &middot; API_KEY: custom header below</p></div>
+        <div><label for="apiKeyHeader">API key header name (API_KEY only)</label>
+             <input type="text" id="apiKeyHeader" th:field="*{apiKeyHeader}"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Response</h2>
+      <div class="row">
+        <div><label for="responseStatus">HTTP status code</label>
+             <input type="number" id="responseStatus" th:field="*{responseStatus}" min="100" max="599" required></div>
+        <div><label for="delayMs">Delay before responding (ms, 0-60000)</label>
+             <input type="number" id="delayMs" th:field="*{delayMs}" min="0" max="60000" required></div>
+        <div><label for="responseContentType">Content-Type (when there is a body)</label>
+             <input type="text" id="responseContentType" th:field="*{responseContentType}"></div>
+      </div>
+      <label for="responseBody">Response body (leave empty for no body)</label>
+      <textarea id="responseBody" th:field="*{responseBody}"></textarea>
+      <label for="responseHeaders">Extra response headers (one per line, <code>Name: value</code>)</label>
+      <textarea id="responseHeaders" th:field="*{responseHeaders}" style="min-height:70px"></textarea>
+      <label class="inline" style="margin-top:14px"><input type="checkbox" th:field="*{enabled}"> Enabled</label>
+    </div>
+    <p><button type="submit">Save</button>
+       <a class="btn secondary" th:href="@{/contexts/{id}(id=${context.id})}">Cancel</a></p>
+  </form>
+</main>
+</body>
+</html>

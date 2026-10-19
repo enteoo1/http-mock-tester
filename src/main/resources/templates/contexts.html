@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Contexts')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+<main>
+  <h1>Contexts</h1>
+  <div class="card">
+    <table>
+      <thead><tr><th>Name</th><th>Description</th><th>Created</th><th></th></tr></thead>
+      <tbody>
+        <tr th:each="c : ${contexts}">
+          <td><a th:href="@{/contexts/{id}(id=${c.id})}" th:text="${c.name}">name</a></td>
+          <td th:text="${c.description}"></td>
+          <td th:text="${@fmt.dt(c.createdAt, tz)}"></td>
+          <td class="actions">
+            <a class="btn small secondary" th:href="@{/logs(context=${c.name})}">Logs</a>
+            <form th:action="@{/contexts/{id}/delete(id=${c.id})}" method="post"
+                  onsubmit="return confirm('Delete this context and all its scenarios?');">
+              <button class="danger small" type="submit">Delete</button>
+            </form>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(contexts)}"><td colspan="4" class="muted">No contexts yet. Create one below.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h2>New context</h2>
+    <p class="error" th:if="${error}" th:text="${error}"></p>
+    <form th:action="@{/contexts}" method="post">
+      <div class="row">
+        <div><label for="name">Name</label><input type="text" id="name" name="name" placeholder="testing" required></div>
+        <div><label for="description">Description</label><input type="text" id="description" name="description"></div>
+      </div>
+      <p><button type="submit">Create context</button></p>
+    </form>
+  </div>
+</main>
+</body>
+</html>
