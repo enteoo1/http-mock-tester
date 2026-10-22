@@ -39,9 +39,10 @@
   </div>
   <div class="card" id="log-table">
     <table>
-      <thead><tr><th>Received</th><th>Method</th><th>Context / Scenario</th><th>Outcome</th><th>Status</th><th>Source IP</th><th>ms</th><th></th></tr></thead>
+      <thead><tr><th>#</th><th>Received</th><th>Method</th><th>Context / Scenario</th><th>Outcome</th><th>Status</th><th>Source IP</th><th>ms</th><th></th></tr></thead>
       <tbody>
         <tr th:each="l : ${rows}">
+          <td><a th:href="@{/logs/{id}(id=${l.id})}" th:text="${l.logIndex}"></a></td>
           <td th:text="${@fmt.dt(l.receivedAt, tz)}"></td>
           <td th:text="${l.method}"></td>
           <td><span th:text="${l.contextName}"></span> / <span th:text="${l.scenarioName}"></span></td>
@@ -61,7 +62,7 @@
             </form>
           </td>
         </tr>
-        <tr th:if="${#lists.isEmpty(rows)}"><td colspan="8" class="muted">No requests found.</td></tr>
+        <tr th:if="${#lists.isEmpty(rows)}"><td colspan="9" class="muted">No requests found.</td></tr>
       </tbody>
     </table>
     <p>

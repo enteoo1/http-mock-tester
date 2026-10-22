@@ -38,12 +38,15 @@ CREATE TABLE IF NOT EXISTS scenario (
   response_headers TEXT,
   delay_ms INTEGER NOT NULL DEFAULT 0,
   enabled INTEGER NOT NULL DEFAULT 1,
+  copy_request_headers INTEGER NOT NULL DEFAULT 0,
+  append_request_body INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL,
   UNIQUE (context_id, name)
 );
 
 CREATE TABLE IF NOT EXISTS request_log (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  log_index INTEGER,
   user_id INTEGER,
   context_id INTEGER,
   scenario_id INTEGER,

@@ -28,6 +28,8 @@ public class ScenarioRepository extends BaseRepo {
         s.setResponseHeaders(rs.getString("response_headers"));
         s.setDelayMs(rs.getInt("delay_ms"));
         s.setEnabled(rs.getInt("enabled") == 1);
+        s.setCopyRequestHeaders(rs.getInt("copy_request_headers") == 1);
+        s.setAppendRequestBody(rs.getInt("append_request_body") == 1);
         s.setCreatedAt(rs.getString("created_at"));
         return s;
     };
@@ -54,23 +56,25 @@ public class ScenarioRepository extends BaseRepo {
     public long insert(Scenario s) {
         return insert("INSERT INTO scenario(context_id, name, description, allowed_methods, body_mode, "
                         + "require_valid_json, auth_type, api_key_header, response_status, response_body, "
-                        + "response_content_type, response_headers, delay_ms, enabled, created_at) "
-                        + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                        + "response_content_type, response_headers, delay_ms, enabled, copy_request_headers, "
+                        + "append_request_body, created_at) "
+                        + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 s.getContextId(), s.getName(), s.getDescription(), s.getAllowedMethods(), s.getBodyMode(),
                 flag(s.isRequireValidJson()), s.getAuthType(), s.getApiKeyHeader(), s.getResponseStatus(),
                 s.getResponseBody(), s.getResponseContentType(), s.getResponseHeaders(), s.getDelayMs(),
-                flag(s.isEnabled()), s.getCreatedAt());
+                flag(s.isEnabled()), flag(s.isCopyRequestHeaders()), flag(s.isAppendRequestBody()),
+                s.getCreatedAt());
     }
 
     public void update(Scenario s) {
         jdbc.update("UPDATE scenario SET name = ?, description = ?, allowed_methods = ?, body_mode = ?, "
                         + "require_valid_json = ?, auth_type = ?, api_key_header = ?, response_status = ?, "
                         + "response_body = ?, response_content_type = ?, response_headers = ?, delay_ms = ?, "
-                        + "enabled = ? WHERE id = ?",
+                        + "enabled = ?, copy_request_headers = ?, append_request_body = ? WHERE id = ?",
                 s.getName(), s.getDescription(), s.getAllowedMethods(), s.getBodyMode(),
                 flag(s.isRequireValidJson()), s.getAuthType(), s.getApiKeyHeader(), s.getResponseStatus(),
                 s.getResponseBody(), s.getResponseContentType(), s.getResponseHeaders(), s.getDelayMs(),
-                flag(s.isEnabled()), s.getId());
+                flag(s.isEnabled()), flag(s.isCopyRequestHeaders()), flag(s.isAppendRequestBody()), s.getId());
     }
 
     public void setEnabled(long id, boolean enabled) {

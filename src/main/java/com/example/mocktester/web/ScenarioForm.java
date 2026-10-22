@@ -22,6 +22,8 @@ public class ScenarioForm {
     private String responseHeaders = "";
     private Integer delayMs = 0;
     private boolean enabled = true;
+    private boolean copyRequestHeaders;
+    private boolean appendRequestBody;
 
     public static ScenarioForm from(Scenario s) {
         ScenarioForm f = new ScenarioForm();
@@ -38,6 +40,8 @@ public class ScenarioForm {
         f.responseHeaders = s.getResponseHeaders() == null ? "" : s.getResponseHeaders();
         f.delayMs = s.getDelayMs();
         f.enabled = s.isEnabled();
+        f.copyRequestHeaders = s.isCopyRequestHeaders();
+        f.appendRequestBody = s.isAppendRequestBody();
         return f;
     }
 
@@ -55,5 +59,7 @@ public class ScenarioForm {
         s.setResponseHeaders(responseHeaders == null ? "" : responseHeaders);
         s.setDelayMs(delayMs);
         s.setEnabled(enabled);
+        s.setCopyRequestHeaders(copyRequestHeaders);
+        s.setAppendRequestBody(appendRequestBody);
     }
 }

@@ -102,7 +102,7 @@ public class MockService {
                         Thread.currentThread().interrupt();
                     }
                 }
-                response = configured(s);
+                response = configured(s, req, body);
             }
         }
 
@@ -179,7 +179,7 @@ public class MockService {
         return new MockResponse(status, headers, body);
     }
 
-    private MockResponse configured(Scenario s) {
+    private MockResponse configured(Scenario s, HttpServletRequest req, byte[] requestBody) {
         Map<String, String> headers = new LinkedHashMap<>();
         if (s.getResponseHeaders() != null) {
             for (String line : s.getResponseHeaders().split("\\R")) {
@@ -193,9 +193,23 @@ public class MockService {
                 }
             }
         }
+        if (s.isCopyRequestHeaders()) {
+            copyRequestHeaders(req, headers);
+        }
         byte[] body = null;
         if (s.getResponseBody() != null && !s.getResponseBody().isEmpty()) {
             body = s.getResponseBody().getBytes(StandardCharsets.UTF_8);
+        }
+        if (s.isAppendRequestBody() && requestBody.length > 0) {
+            if (body == null) {
+                body = requestBody;
+            } else {
+                byte[] joined = Arrays.copyOf(body, body.length + requestBody.length);
+                System.arraycopy(requestBody, 0, joined, body.length, requestBody.length);
+                body = joined;
+            }
+        }
+        if (body != null) {
             boolean hasContentType = headers.keySet().stream().anyMatch(k -> k.equalsIgnoreCase("Content-Type"));
             if (!hasContentType) {
                 String ct = (s.getResponseContentType() == null || s.getResponseContentType().isBlank())
@@ -204,6 +218,26 @@ public class MockService {
             }
         }
         return new MockResponse(s.getResponseStatus(), headers, body);
+    }
+
+    /** Request headers that describe the incoming message/connection and would corrupt the response. */
+    private static final Set<String> NOT_COPIED = Set.of("host", "content-length", "content-type",
+            "content-encoding", "transfer-encoding", "connection", "keep-alive", "upgrade", "te", "trailer",
+            "expect", "proxy-authorization", "proxy-connection");
+
+    /** Copies the request headers; headers already configured on the scenario are kept as they are. */
+    private void copyRequestHeaders(HttpServletRequest req, Map<String, String> headers) {
+        Set<String> present = new HashSet<>();
+        headers.keySet().forEach(k -> present.add(k.toLowerCase(Locale.ROOT)));
+        Enumeration<String> names = req.getHeaderNames();
+        while (names != null && names.hasMoreElements()) {
+            String name = names.nextElement();
+            String lower = name.toLowerCase(Locale.ROOT);
+            if (NOT_COPIED.contains(lower) || !HEADER_NAME.matcher(name).matches() || !present.add(lower)) {
+                continue;
+            }
+            headers.put(name, String.join(", ", Collections.list(req.getHeaders(name))));
+        }
     }
 
     private void saveLog(String username, String contextName, String scenarioName, Optional<AppUser> user,

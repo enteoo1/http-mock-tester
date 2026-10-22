@@ -23,5 +23,9 @@ public class Scenario {
     private String responseHeaders;
     private int delayMs;
     private boolean enabled;
+    /** Copy the headers of the incoming request into the response. */
+    private boolean copyRequestHeaders;
+    /** Append the incoming request body at the end of the response body. */
+    private boolean appendRequestBody;
     private String createdAt;
 }

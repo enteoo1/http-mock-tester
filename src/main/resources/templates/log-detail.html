@@ -5,7 +5,7 @@
 <nav th:replace="~{fragments :: nav}"></nav>
 <main>
   <p><a th:href="@{/logs}">&larr; Request logs</a></p>
-  <h1>Request #<span th:text="${log.id}"></span>
+  <h1>Request #<span th:text="${log.logIndex}"></span>
       <span class="badge" th:classappend="${log.outcome}" th:text="${log.outcome}"></span></h1>
   <div class="card">
     <table>

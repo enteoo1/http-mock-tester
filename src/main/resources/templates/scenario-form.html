@@ -54,6 +54,12 @@
       <textarea id="responseBody" th:field="*{responseBody}"></textarea>
       <label for="responseHeaders">Extra response headers (one per line, <code>Name: value</code>)</label>
       <textarea id="responseHeaders" th:field="*{responseHeaders}" style="min-height:70px"></textarea>
+      <div style="margin-top:14px">
+        <label class="inline"><input type="checkbox" th:field="*{copyRequestHeaders}"> Copy the original request headers into the response (headers set above take precedence)</label>
+      </div>
+      <div>
+        <label class="inline"><input type="checkbox" th:field="*{appendRequestBody}"> Append the original request body at the end of the response body</label>
+      </div>
       <label class="inline" style="margin-top:14px"><input type="checkbox" th:field="*{enabled}"> Enabled</label>
     </div>
     <p><button type="submit">Save</button>

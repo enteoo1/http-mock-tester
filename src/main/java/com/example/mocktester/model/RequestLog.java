@@ -5,6 +5,8 @@ import lombok.Data;
 @Data
 public class RequestLog {
     private Long id;
+    /** Running request number, per user. */
+    private Long logIndex;
     private Long userId;
     private Long contextId;
     private Long scenarioId;
