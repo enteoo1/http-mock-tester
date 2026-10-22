@@ -88,6 +88,14 @@ public class LogRepository extends BaseRepo {
                 .stream().findFirst();
     }
 
+    public int deleteByIdAndUser(long id, long userId) {
+        return jdbc.update("DELETE FROM request_log WHERE id = ? AND user_id = ?", id, userId);
+    }
+
+    public int deleteAllByUser(long userId) {
+        return jdbc.update("DELETE FROM request_log WHERE user_id = ?", userId);
+    }
+
     public int deleteOlderThan(String cutoffDbTimestamp) {
         return jdbc.update("DELETE FROM request_log WHERE received_at < ?", cutoffDbTimestamp);
     }

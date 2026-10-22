@@ -8,8 +8,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.security.Principal;
 import java.util.List;
@@ -56,5 +58,30 @@ public class LogController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         model.addAttribute("log", l);
         return "log-detail";
+    }
+
+    @PostMapping("/logs/{id}/delete")
+    public String delete(@PathVariable long id, Principal principal,
+                         @RequestParam(defaultValue = "") String context,
+                         @RequestParam(defaultValue = "") String scenario,
+                         @RequestParam(defaultValue = "") String outcome,
+                         @RequestParam(defaultValue = "0") int page) {
+        logs.deleteByIdAndUser(id, current.get(principal).getId());
+        return backToList(context, scenario, outcome, page);
+    }
+
+    @PostMapping("/logs/delete-all")
+    public String deleteAll(Principal principal) {
+        logs.deleteAllByUser(current.get(principal).getId());
+        return "redirect:/logs";
+    }
+
+    private static String backToList(String context, String scenario, String outcome, int page) {
+        return "redirect:" + UriComponentsBuilder.fromPath("/logs")
+                .queryParam("context", context)
+                .queryParam("scenario", scenario)
+                .queryParam("outcome", outcome)
+                .queryParam("page", Math.max(page, 0))
+                .build().encode().toUriString();
     }
 }

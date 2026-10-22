@@ -19,6 +19,25 @@
     </form>
   </div>
   <div class="card">
+    <div class="row" style="align-items:end">
+      <div><label for="refresh">Auto-refresh</label>
+        <select id="refresh">
+          <option value="0">Off</option>
+          <option value="2">2 s</option>
+          <option value="5" selected>5 s</option>
+          <option value="10">10 s</option>
+          <option value="30">30 s</option>
+          <option value="60">60 s</option>
+        </select></div>
+      <div><span class="muted" id="refresh-status"></span></div>
+      <div style="margin-left:auto">
+        <form th:action="@{/logs/delete-all}" method="post"
+              onsubmit="return confirm('Delete ALL your request logs? This cannot be undone.');">
+          <button type="submit" class="small danger">Delete all</button>
+        </form></div>
+    </div>
+  </div>
+  <div class="card" id="log-table">
     <table>
       <thead><tr><th>Received</th><th>Method</th><th>Context / Scenario</th><th>Outcome</th><th>Status</th><th>Source IP</th><th>ms</th><th></th></tr></thead>
       <tbody>
@@ -30,7 +49,17 @@
           <td th:text="${l.responseStatus}"></td>
           <td th:text="${l.remoteIp}"></td>
           <td th:text="${l.durationMs}"></td>
-          <td><a class="btn small secondary" th:href="@{/logs/{id}(id=${l.id})}">Details</a></td>
+          <td style="white-space:nowrap">
+            <a class="btn small secondary" th:href="@{/logs/{id}(id=${l.id})}">Details</a>
+            <form th:action="@{/logs/{id}/delete(id=${l.id})}" method="post" style="display:inline"
+                  onsubmit="return confirm('Delete this log entry?');">
+              <input type="hidden" name="context" th:value="${context}">
+              <input type="hidden" name="scenario" th:value="${scenario}">
+              <input type="hidden" name="outcome" th:value="${outcome}">
+              <input type="hidden" name="page" th:value="${page}">
+              <button type="submit" class="small danger">Delete</button>
+            </form>
+          </td>
         </tr>
         <tr th:if="${#lists.isEmpty(rows)}"><td colspan="8" class="muted">No requests found.</td></tr>
       </tbody>
@@ -43,5 +72,50 @@
     </p>
   </div>
 </main>
+<script>
+(function () {
+  var KEY = 'logs.refreshSeconds';
+  var sel = document.getElementById('refresh');
+  var status = document.getElementById('refresh-status');
+  var timer = null;
+
+  try {
+    var saved = localStorage.getItem(KEY);
+    if (saved !== null) sel.value = saved;
+  } catch (e) {}
+  if (!sel.value) sel.value = '5';
+
+  function refresh() {
+    if (document.hidden) return;
+    fetch(window.location.href, { credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } })
+      .then(function (r) {
+        if (!r.ok || r.redirected) { window.location.reload(); return null; }
+        return r.text();
+      })
+      .then(function (html) {
+        if (!html) return;
+        var doc = new DOMParser().parseFromString(html, 'text/html');
+        var fresh = doc.getElementById('log-table');
+        if (fresh) document.getElementById('log-table').innerHTML = fresh.innerHTML;
+        status.textContent = 'Updated ' + new Date().toLocaleTimeString();
+      })
+      .catch(function () { status.textContent = 'Refresh failed'; });
+  }
+
+  function schedule() {
+    if (timer) clearInterval(timer);
+    timer = null;
+    var s = parseInt(sel.value, 10);
+    if (s > 0) timer = setInterval(refresh, s * 1000);
+    else status.textContent = 'Auto-refresh off';
+  }
+
+  sel.addEventListener('change', function () {
+    try { localStorage.setItem(KEY, sel.value); } catch (e) {}
+    schedule();
+  });
+  schedule();
+})();
+</script>
 </body>
 </html>
